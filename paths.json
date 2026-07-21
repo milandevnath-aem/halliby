@@ -1,15 +1,15 @@
 {
   "mappings": [
-    "/content/expnews/language-masters/en:/",
-    "/content/expnews/language-masters/en/:/en/",
-    "/content/expnews/configuration:/.helix/config.json",
-    "/content/expnews/metadata:/metadata.json",
-    "/content/expnews/redirects:/redirects.json",
-    "/content/expnews/graphql:/graphql.json",
-    "/content/expnews/placeholders:/placeholders.json"
+    "/content/halliby/language-masters/en:/",
+    "/content/halliby/language-masters/en/:/en/",
+    "/content/halliby/configuration:/.helix/config.json",
+    "/content/halliby/metadata:/metadata.json",
+    "/content/halliby/redirects:/redirects.json",
+    "/content/halliby/graphql:/graphql.json",
+    "/content/halliby/placeholders:/placeholders.json"
   ],
   "includes": [
-    "/content/expnews/",
-    "/content/dam/expnews/"
+    "/content/halliby/",
+    "/content/dam/halliby/"
   ]
 }
