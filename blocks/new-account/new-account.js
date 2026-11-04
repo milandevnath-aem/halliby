@@ -344,12 +344,12 @@ export default async function decorate(block) {
   const config = readBlockConfig(block) || {};
 
   newAccountWizardName =
-    (config.formname ?? config['form-name'] ?? '')
+    (config.wizardname ?? config['wizard-name'] ?? config.formname ?? config['form-name'] ?? '')
       .toString()
       .trim() || 'new-account-application';
 
   newAccountWizardTitle =
-    (config.formtitle ?? config['form-title'] ?? '')
+    (config.wizardtitle ?? config['wizard-title'] ?? config.formtitle ?? config['form-title'] ?? '')
       .toString()
       .trim();
 

@@ -274,12 +274,12 @@ export default async function decorate(block) {
   const config = readBlockConfig(block) || {};
 
   creditCardApplicationFormWizardTitle =
-  (config.formtitle ?? config['form-title'] ?? '')
+  (config.wizardtitle ?? config['wizard-title'] ?? config.formtitle ?? config['form-title'] ?? '')
     .toString()
     .trim();
 
   creditCardApplicationFormWizardName =
-    (config.formname ?? config['form-name'] ?? '')
+    (config.wizardname ?? config['wizard-name'] ?? config.formname ?? config['form-name'] ?? '')
       .toString()
       .trim() || 'credit-card-application';
     [...block.children].forEach((row) => { row.style.display = 'none'; });

@@ -28,14 +28,14 @@
         },
         {
           "component": "text",
-          "name": "form-title",
+          "name": "wizard-title",
           "label": "Wizard Title",
           "valueType": "string",
           "description": "Passed in the data layer as the wizard title. It is not displayed on the page."
         },
         {
           "component": "text",
-          "name": "form-name",
+          "name": "wizard-name",
           "label": "Wizard name",
           "valueType": "string",
           "description": "Name of the form passed in the data layer"

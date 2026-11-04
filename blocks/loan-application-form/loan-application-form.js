@@ -375,12 +375,12 @@ function attachLoanApplicationFormStepEvents(wizard, form, stepEvent, startedEve
 export default async function decorate(block) {
   const config = readBlockConfig(block) || {};
   loanApplicationFormWizardTitle =
-  (config.formtitle ?? config['form-title'] ?? '')
+  (config.wizardtitle ?? config['wizard-title'] ?? config.formtitle ?? config['form-title'] ?? '')
     .toString()
     .trim();
 
   loanApplicationFormWizardName =
-  (config.formname ?? config['form-name'] ?? '')
+  (config.wizardname ?? config['wizard-name'] ?? config.formname ?? config['form-name'] ?? '')
     .toString()
     .trim() || 'home-loan-application';
   
