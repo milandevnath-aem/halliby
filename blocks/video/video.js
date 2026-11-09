@@ -1,4 +1,4 @@
-import { readBlockConfig } from '../../scripts/aem.js';
+import { readBlockConfig, resolveAnchorValue } from '../../scripts/aem.js';
 import { dispatchCustomEvent } from '../../scripts/custom-events.js';
 
 /** The block's rows when it is not key-value: one per field, in _video.json's order. */
@@ -41,28 +41,30 @@ function playerSettings(block, config) {
   };
 }
 
+const flag = (on) => (on ? '1' : '0');
+
 function embedYoutube(url, settings) {
   const usp = new URLSearchParams(url.search);
-  let vid = usp.get('v') ? encodeURIComponent(usp.get('v')) : '';
-  const embed = url.pathname;
+  let vid = usp.get('v') || '';
   if (url.origin.includes('youtu.be')) {
     [, vid] = url.pathname.split('/');
   }
-  const suffixParams = {
-    autoplay: settings.autoplay ? '1' : '0',
-    mute: settings.muted ? '1' : '0',
-    controls: settings.controls ? '1' : '0',
-    disablekb: settings.controls ? '0' : '1',
-    loop: settings.loop ? '1' : '0',
-    playsinline: settings.autoplay || settings.loop ? '1' : '0',
-    // YouTube only loops a single video when it is also its own playlist.
-    ...(settings.loop && vid ? { playlist: vid } : {}),
-  };
-  const suffix = `&${Object.entries(suffixParams).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')}`;
+  // An /embed/ID or /shorts/ID URL carries no ?v=, so the path is kept as authored and the
+  // settings are appended to it - before, they were built and then dropped for those URLs.
+  const path = vid ? `/embed/${encodeURIComponent(vid)}` : url.pathname;
+  const params = new URLSearchParams(vid ? { rel: '0', v: vid } : {});
+  params.set('autoplay', flag(settings.autoplay));
+  params.set('mute', flag(settings.muted));
+  params.set('controls', flag(settings.controls));
+  params.set('disablekb', flag(!settings.controls));
+  params.set('loop', flag(settings.loop));
+  params.set('playsinline', flag(settings.autoplay || settings.loop));
+  // YouTube only loops a single video when it is also its own playlist.
+  if (settings.loop && vid) params.set('playlist', vid);
 
   const temp = document.createElement('div');
   temp.innerHTML = `<div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 56.25%;">
-      <iframe src="https://www.youtube.com${vid ? `/embed/${vid}?rel=0&v=${vid}${suffix}` : embed}" style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" 
+      <iframe src="https://www.youtube.com${path}?${params}" style="border: 0; top: 0; left: 0; width: 100%; height: 100%; position: absolute;" 
       allow="autoplay; fullscreen; picture-in-picture; encrypted-media; accelerometer; gyroscope; picture-in-picture" allowfullscreen="" scrolling="no" title="Content from Youtube" loading="lazy"></iframe>
     </div>`;
   return temp.children.item(0);
@@ -126,12 +128,14 @@ const loadVideoEmbed = (block, link, settings, startedEventType, endedEventType)
 
 export default function decorate(block) {
   const config = readVideoConfig(block);
-  const authoredLink = (config.videourl || config.videoUrl || '').toString().trim();
-  const fallbackLink = block.querySelector(':scope div:nth-child(1) > div a')?.innerHTML?.trim() || '';
-  const link = authoredLink || fallbackLink;
+  // readBlockConfig and FIELD_ROWS both key on toClassName output, so the only spellings
+  // that can reach here are the lower-case, hyphenated ones.
+  const authoredLink = (config.videourl || '').toString().trim();
+  const fallbackAnchor = block.querySelector(':scope div:nth-child(1) > div a');
+  const link = authoredLink || (fallbackAnchor ? resolveAnchorValue(fallbackAnchor).trim() : '');
 
-  const startedEventType = (config['started-event-type'] || config.startedeventtype || '').toString().trim();
-  const endedEventType = (config['ended-event-type'] || config.endedeventtype || '').toString().trim();
+  const startedEventType = (config['started-event-type'] || '').toString().trim();
+  const endedEventType = (config['ended-event-type'] || '').toString().trim();
 
   block.textContent = '';
   block.dataset.embedLoaded = false;
