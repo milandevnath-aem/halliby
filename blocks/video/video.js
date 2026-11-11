@@ -30,14 +30,21 @@ function readSwitch(value) {
   return text === 'false' ? false : undefined;
 }
 
-/** A switch that was never saved keeps what the block's classes have always done. */
+/**
+ * An authored switch always wins. With nothing authored, a block that still carries the old
+ * autoplay/playonload classes keeps behaving the way those classes have always made it behave;
+ * every other block falls back to the model's defaults, which are all on.
+ */
 function playerSettings(block, config) {
   const background = block.classList.contains('autoplay');
+  const playOnLoad = block.classList.contains('playonload');
+  const legacy = background || playOnLoad;
+  const fallback = (fromClasses) => (legacy ? fromClasses : true);
   return {
-    autoplay: readSwitch(config.autoplay) ?? block.classList.contains('playonload'),
-    loop: readSwitch(config.loop) ?? background,
-    muted: readSwitch(config.muted) ?? background,
-    controls: readSwitch(config.controls) ?? !background,
+    autoplay: readSwitch(config.autoplay) ?? fallback(playOnLoad),
+    loop: readSwitch(config.loop) ?? fallback(background),
+    muted: readSwitch(config.muted) ?? fallback(background),
+    controls: readSwitch(config.controls) ?? fallback(!background),
   };
 }
 
